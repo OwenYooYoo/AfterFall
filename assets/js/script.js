@@ -14,9 +14,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 return response.json();
             }).then(data => {
                 if (data.loggedIn) {
-                    window.location.href = '/profile.html';
+                    window.location.href = '/profile';
                 } else {
-                    window.location.href = '/login.html';
+                    window.location.href = '/login';
                 }
             }).catch(error => {
                 console.error('Error:', error);

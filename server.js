@@ -2,6 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const session = require('express-session');
 const path = require('path');
+const { MongoClient } = require('mongodb');
 
 const app = express();
 const PORT = 3000;
@@ -11,68 +12,96 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 // Session middleware
 app.use(session({
-    secret: 'your_secret_key', // Change this to a secure random key
+    secret: 'your_secret_key', // Change to Secure KEY
     resave: false,
     saveUninitialized: true
 }));
 
-// Test user data
-const users = {
-    'user1@gmail.com': { password: 'password1' },
-    'user2@gmail.com': { password: 'password2' }
-};
+// MongoDB connection
+const uri = "mongodb+srv://6420015:afterfallSP1@clusteraf.lcvf3mb.mongodb.net/?retryWrites=true&w=majority&appName=ClusterAF"; 
+const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
 
-// Login route
-app.post('/login', (req, res) => {
-    const { userEmail, password } = req.body;
-    if (users[userEmail] && users[userEmail].password === password) {
-        req.session.user = userEmail;
-        res.redirect('/profile.html');
-    } else {
-        res.redirect('/login.html');
+client.connect(err => {
+    if (err) {
+        console.error('Error connecting to MongoDB:', err);
+        process.exit(1);
     }
-});
+    console.log('Connected to MongoDB');
 
-// Logout route
-app.get('/logout', (req, res) => {
-    req.session.destroy();
-    res.redirect('/index.html');
-});
+    const db = client.db('afterfall');
+    const usersCollection = db.collection('users');
 
-// Profile check route
-app.get('/check-session', (req, res) => {
-    if (req.session.user) {
-        res.json({ loggedIn: true });
-    } else {
-        res.json({ loggedIn: false });
-    }
-});
+    // Simulated user data with emails (for demonstration purposes)
+    const simulatedUsers = {
+        'user1@example.com': { password: 'password1' },
+        'user2@example.com': { password: 'password2' }
+    };
 
-// Serve static files from the 'Assets' directory
-app.use('/assets', express.static(path.join(__dirname, 'assets')));
+    // Insert simulated users into the database
+    Object.entries(simulatedUsers).forEach(([email, userData]) => {
+        usersCollection.updateOne(
+            { email: email },
+            { $set: userData },
+            { upsert: true }
+        );
+    });
 
-// Serve HTML files from the root directory
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'index.html'));
-});
+    // Login route
+    app.post('/login', (req, res) => {
+        const { userEmail, password } = req.body;
+        usersCollection.findOne({ email: userEmail }, (err, user) => {
+            if (err) {
+                console.error('Error fetching user:', err);
+                res.redirect('/login/');
+                return;
+            }
 
-app.get('/index.html', (req, res) => {
-    res.sendFile(path.join(__dirname, 'index.html'));
-});
+            if (user && user.password === password) {
+                req.session.user = userEmail;
+                res.redirect('/profile/');
+            } else {
+                res.redirect('/login/');
+            }
+        });
+    });
 
-app.get('/profile.html', (req, res) => {
-    res.sendFile(path.join(__dirname, 'profile.html'));
-});
+    // Logout route
+    app.get('/logout', (req, res) => {
+        req.session.destroy();
+        res.redirect('/');
+    });
 
-app.get('/login.html', (req, res) => {
-    res.sendFile(path.join(__dirname, 'login.html'));
-});
+    // Profile check route
+    app.get('/check-session', (req, res) => {
+        if (req.session.user) {
+            res.json({ loggedIn: true });
+        } else {
+            res.json({ loggedIn: false });
+        }
+    });
 
-app.get('/signup.html', (req, res) => {
-    res.sendFile(path.join(__dirname, 'signup.html'));
-});
+    // Serve static files from the 'Assets' directory
+    app.use('/assets', express.static(path.join(__dirname, 'assets')));
 
-// Start the server
-app.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT}`);
+    // Serve HTML files from their respective directories
+    app.get('/', (req, res) => {
+        res.sendFile(path.join(__dirname, 'index/index.html'));
+    });
+
+    app.get('/profile/', (req, res) => {
+        res.sendFile(path.join(__dirname, 'profile/index.html'));
+    });
+
+    app.get('/login/', (req, res) => {
+        res.sendFile(path.join(__dirname, 'login/index.html'));
+    });
+
+    app.get('/signup/', (req, res) => {
+        res.sendFile(path.join(__dirname, 'signup/index.html'));
+    });
+
+    // Start the server
+    app.listen(PORT, () => {
+        console.log(`Server running on http://localhost:${PORT}`);
+    });
 });
