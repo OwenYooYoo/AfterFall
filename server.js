@@ -2,7 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const session = require('express-session');
 const path = require('path');
-const { MongoClient } = require('mongodb');
+const { MongoClient, ServerApiVersion } = require('mongodb');
 
 const app = express();
 const PORT = 3000;
@@ -17,91 +17,99 @@ app.use(session({
     saveUninitialized: true
 }));
 
-// MongoDB connection
 const uri = "mongodb+srv://6420015:afterfallSP1@clusteraf.lcvf3mb.mongodb.net/?retryWrites=true&w=majority&appName=ClusterAF"; 
-const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
+const client = new MongoClient(uri, {
+    serverApi: ServerApiVersion.v1,
+    connectTimeoutMS: 10000
+});
 
-client.connect(err => {
-    if (err) {
-        console.error('Error connecting to MongoDB:', err);
-        process.exit(1);
-    }
-    console.log('Connected to MongoDB');
+async function main() {
+    try {
+        await client.connect();
+        console.log('Connected to MongoDB');
 
-    const db = client.db('afterfall');
-    const usersCollection = db.collection('users');
+        const db = client.db('afterfall');
+        console.log('Connected to database');
+        const usersCollection = db.collection('users');
+        console.log('Connected to Users collection');
 
-    // Simulated user data with emails (for demonstration purposes)
-    const simulatedUsers = {
-        'user1@example.com': { password: 'password1' },
-        'user2@example.com': { password: 'password2' }
-    };
+        // TEST USER DATA
+        const simulatedUsers = {
+            'user1@example.com': { password: 'password1' },
+            'user2@example.com': { password: 'password2' }
+        };
 
-    // Insert simulated users into the database
-    Object.entries(simulatedUsers).forEach(([email, userData]) => {
-        usersCollection.updateOne(
-            { email: email },
-            { $set: userData },
-            { upsert: true }
-        );
-    });
+        // Insert simulated users into the database
+        Object.entries(simulatedUsers).forEach(([email, userData]) => {
+            usersCollection.updateOne(
+                { email: email },
+                { $set: userData },
+                { upsert: true }
+            );
+        });
 
-    // Login route
-    app.post('/login', (req, res) => {
-        const { userEmail, password } = req.body;
-        usersCollection.findOne({ email: userEmail }, (err, user) => {
-            if (err) {
-                console.error('Error fetching user:', err);
-                res.redirect('/login/');
-                return;
-            }
+        // Login route
+        app.post('/login', (req, res) => {
+            const { userEmail, password } = req.body;
+            usersCollection.findOne({ email: userEmail }, (err, user) => {
+                if (err) {
+                    console.error('Error fetching user:', err);
+                    res.redirect('/login/');
+                    return;
+                }
 
-            if (user && user.password === password) {
-                req.session.user = userEmail;
-                res.redirect('/profile/');
+                if (user && user.password === password) {
+                    req.session.user = userEmail;
+                    res.redirect('/profile/');
+                } else {
+                    res.redirect('/login/');
+                }
+            });
+        });
+
+        // Logout route
+        app.get('/logout', (req, res) => {
+            req.session.destroy();
+            res.redirect('/');
+        });
+
+        // Profile check route
+        app.get('/check-session', (req, res) => {
+            if (req.session.user) {
+                res.json({ loggedIn: true });
             } else {
-                res.redirect('/login/');
+                res.json({ loggedIn: false });
             }
         });
-    });
 
-    // Logout route
-    app.get('/logout', (req, res) => {
-        req.session.destroy();
-        res.redirect('/');
-    });
+        // Serve static files from the 'assets' directory
+        app.use('/assets', express.static(path.join(__dirname, 'assets')));
 
-    // Profile check route
-    app.get('/check-session', (req, res) => {
-        if (req.session.user) {
-            res.json({ loggedIn: true });
-        } else {
-            res.json({ loggedIn: false });
-        }
-    });
+        // Serve HTML files from their respective directories
+        app.get('/', (req, res) => {
+            res.sendFile(path.join(__dirname, 'index/index.html'));
+        });
 
-    // Serve static files from the 'Assets' directory
-    app.use('/assets', express.static(path.join(__dirname, 'assets')));
+        app.get('/profile/', (req, res) => {
+            res.sendFile(path.join(__dirname, 'profile/index.html'));
+        });
 
-    // Serve HTML files from their respective directories
-    app.get('/', (req, res) => {
-        res.sendFile(path.join(__dirname, 'index/index.html'));
-    });
+        app.get('/login/', (req, res) => {
+            res.sendFile(path.join(__dirname, 'login/index.html'));
+        });
 
-    app.get('/profile/', (req, res) => {
-        res.sendFile(path.join(__dirname, 'profile/index.html'));
-    });
+        app.get('/signup/', (req, res) => {
+            res.sendFile(path.join(__dirname, 'signup/index.html'));
+        });
 
-    app.get('/login/', (req, res) => {
-        res.sendFile(path.join(__dirname, 'login/index.html'));
-    });
+        // Start the server
+        app.listen(PORT, () => {
+            console.log(`Server running on http://localhost:${PORT}`);
+        });
 
-    app.get('/signup/', (req, res) => {
-        res.sendFile(path.join(__dirname, 'signup/index.html'));
-    });
+    } catch (err) {
+        console.error('Error connecting to MongoDB:', err);
+    }
+}
 
-    // Start the server
-    app.listen(PORT, () => {
-        console.log(`Server running on http://localhost:${PORT}`);
-    });
-});
+main().catch(console.error);
