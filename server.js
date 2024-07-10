@@ -33,44 +33,51 @@ async function main() {
         const usersCollection = db.collection('users');
         console.log('Connected to Users collection');
 
-        // TEST USER DATA
-        const simulatedUsers = {
-            'user1@example.com': { password: 'password1' },
-            'user2@example.com': { password: 'password2' }
-        };
+        // // TEST USER DATA
+        // const simulatedUsers = {
+        //     'user1@gmail.com': { password: 'password1' },
+        //     'user2@gmail.com': { password: 'password2' }
+        // };
 
-        // Insert simulated users into the database
-        Object.entries(simulatedUsers).forEach(([email, userData]) => {
-            usersCollection.updateOne(
-                { email: email },
-                { $set: userData },
-                { upsert: true }
-            );
-        });
+        // // Insert simulated users into the database
+        // Object.entries(simulatedUsers).forEach(([email, userData]) => {
+        //     usersCollection.updateOne(
+        //         { email: email },
+        //         { $set: userData },
+        //         { upsert: true }
+        //     );
+        // });
 
         // Login route
-        app.post('/login', (req, res) => {
-            const { userEmail, password } = req.body;
-            usersCollection.findOne({ email: userEmail }, (err, user) => {
-                if (err) {
-                    console.error('Error fetching user:', err);
-                    res.redirect('/login/');
-                    return;
-                }
-
-                if (user && user.password === password) {
+        app.post('/loginform', async (req, res) => {
+            const { userEmail, userPassword } = req.body;
+            console.log('Login attempt:', { userEmail, userPassword })
+            try {
+                const user = await usersCollection.findOne({ email: userEmail });
+                if (user && user.password === userPassword) {
+                    console.log('Login successful for:', userEmail);
                     req.session.user = userEmail;
-                    res.redirect('/profile/');
+                    res.redirect('/profile');
                 } else {
-                    res.redirect('/login/');
+                    console.log('Login failed for:', userEmail);
+                    res.redirect('/login');
                 }
-            });
+            } catch (err) {
+                console.error('Error fetching user:', err);
+                res.status(500).send('Internal Server Error');
+            }
         });
 
         // Logout route
         app.get('/logout', (req, res) => {
-            req.session.destroy();
-            res.redirect('/');
+            req.session.destroy(err => {
+                if (err) {
+                    console.error('Error destroying session:', err);
+                    res.status(500).send('Error logging out');
+                } else {
+                    res.redirect('/');
+                }
+            });
         });
 
         // Profile check route
@@ -90,15 +97,15 @@ async function main() {
             res.sendFile(path.join(__dirname, 'home/'));
         });
 
-        app.get('/profile/', (req, res) => {
-            res.sendFile(path.join(__dirname, 'profile/'));
+        app.get('/profile', (req, res) => {
+            res.sendFile(path.join(__dirname, 'userprofile/'));
         });
 
-        app.get('/login/', (req, res) => {
+        app.get('/login', (req, res) => {
             res.sendFile(path.join(__dirname, 'login/'));
         });
 
-        app.get('/signup/', (req, res) => {
+        app.get('/signup', (req, res) => {
             res.sendFile(path.join(__dirname, 'signup/'));
         });
 
@@ -109,6 +116,7 @@ async function main() {
 
     } catch (err) {
         console.error('Error connecting to MongoDB:', err);
+        process.exit(1);
     }
 }
 
