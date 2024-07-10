@@ -87,19 +87,19 @@ async function main() {
 
         // Serve HTML files from their respective directories
         app.get('/', (req, res) => {
-            res.sendFile(path.join(__dirname, 'index/index.html'));
+            res.sendFile(path.join(__dirname, 'home/'));
         });
 
         app.get('/profile/', (req, res) => {
-            res.sendFile(path.join(__dirname, 'profile/index.html'));
+            res.sendFile(path.join(__dirname, 'profile/'));
         });
 
         app.get('/login/', (req, res) => {
-            res.sendFile(path.join(__dirname, 'login/index.html'));
+            res.sendFile(path.join(__dirname, 'login/'));
         });
 
         app.get('/signup/', (req, res) => {
-            res.sendFile(path.join(__dirname, 'signup/index.html'));
+            res.sendFile(path.join(__dirname, 'signup/'));
         });
 
         // Start the server
