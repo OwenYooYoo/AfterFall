@@ -13,7 +13,13 @@ async function fetchUsers() {
                 <td><input type="text" value="${user.name}" id="name-${user._id}"></td>
                 <td><input type="text" value="${user.email}" id="email-${user._id}"></td>
                 <td><input type="text" value="${user.password}" id="password-${user._id}"></td>
-                <td><input type="text" value="${user.role}" id="role-${user._id}"></td>
+                <td>
+                    <select id="role-${user._id}">
+                        <option value="admin" ${user.role === 'admin' ? 'selected' : ''}>admin</option>
+                        <option value="teacher" ${user.role === 'teacher' ? 'selected' : ''}>teacher</option>
+                        <option value="student" ${user.role === 'student' ? 'selected' : ''}>student</option>
+                    </select>
+                </td>
                 <td><input type="text" value="${user.classIds}" id="classIds-${user._id}"></td>
                 <td>
                     <button onclick="editUser('${user._id}')">Edit</button>
