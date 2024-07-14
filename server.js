@@ -33,20 +33,6 @@ async function main() {
         const usersCollection = db.collection('users');
         console.log('Connected to Users collection');
 
-        // // TEST USER DATA
-        // const simulatedUsers = {
-        //     'user1@gmail.com': { password: 'password1' },
-        //     'user2@gmail.com': { password: 'password2' }
-        // };
-
-        // // Insert simulated users into the database
-        // Object.entries(simulatedUsers).forEach(([email, userData]) => {
-        //     usersCollection.updateOne(
-        //         { email: email },
-        //         { $set: userData },
-        //         { upsert: true }
-        //     );
-        // });
 
         // Login route
         app.post('/loginform', async (req, res) => {
@@ -55,8 +41,8 @@ async function main() {
             try {
                 const user = await usersCollection.findOne({ email: userEmail });
                 if (user && user.password === userPassword) {
-                    console.log('Login successful for:', userEmail);
-                    req.session.user = userEmail;
+                    req.session.user = { email: userEmail, role: user.role };
+                    console.log('Login successful for:', userEmail, ', Role:', user.role);
                     res.redirect('/profile');
                 } else {
                     console.log('Login failed for:', userEmail);
@@ -65,6 +51,7 @@ async function main() {
             } catch (err) {
                 console.error('Error fetching user:', err);
                 res.status(500).send('Internal Server Error');
+                res.redirect('/');
             }
         });
 
@@ -83,7 +70,7 @@ async function main() {
         // Profile check route
         app.get('/check-session', (req, res) => {
             if (req.session.user) {
-                res.json({ loggedIn: true });
+                res.json({ loggedIn: true , role: req.session.user.role });
             } else {
                 res.json({ loggedIn: false });
             }
@@ -98,7 +85,26 @@ async function main() {
         });
 
         app.get('/profile', (req, res) => {
-            res.sendFile(path.join(__dirname, 'userprofile/'));
+            if (!req.session.user) {
+                res.redirect('/login');
+                return;
+            }
+
+            const role = req.session.user.role;
+            switch (role) {
+                case 'admin':
+                    res.sendFile(path.join(__dirname, 'profile/admin/index.html'));
+                    break;
+                case 'teacher':
+                    res.sendFile(path.join(__dirname, 'profile/teacher/index.html'));
+                    break;
+                case 'student':
+                    res.sendFile(path.join(__dirname, 'profile/student/index.html'));
+                    break;
+                default:
+                    res.redirect('/login');
+                    break;
+            }
         });
 
         app.get('/login', (req, res) => {
@@ -107,6 +113,10 @@ async function main() {
 
         app.get('/signup', (req, res) => {
             res.sendFile(path.join(__dirname, 'signup/'));
+        });
+
+        app.get('/table/users', (req, res) => {
+            res.sendFile(path.join(__dirname, 'table/users/index.html'));
         });
 
         // Start the server

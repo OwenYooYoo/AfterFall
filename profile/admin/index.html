@@ -1,11 +1,11 @@
 <!DOCTYPE HTML>
 <html>
 	<head>
-		<title>Login</title>
+		<title>Admin Profile</title>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
-		<link rel="stylesheet" href="../assets/css/main.css" />
-		<script src="../assets/js/script.js" defer></script>
+		<link rel="stylesheet" href="../../assets/css/main.css" />
+		<script src="../../assets/js/script.js" defer></script>
 	</head>
 	<body class="is-preload">
 
@@ -23,31 +23,16 @@
                                         <a href="#" class="icon fa-user" onclick="redirectToProfile()"></a>
                                     </div>
                                 </header>
-                                
-                            <!-- Login Form -->
-                                <section class="form-group">
-                                    <h2>Login</h2>
-                                <!-- Form Fields -->
-                                    <form action="/loginform" method="post">
-                                        <div class="form-field">
-                                            <label for="userEmail">Email</label>
-                                            <input type="email" id="userEmail" name="userEmail" required>
-                                            <br></br>
-                                        </div>
-                                        <div class="form-field">
-                                            <label for="userPassword">Password</label>
-                                            <input type="password" id="userPassword" name="userPassword" required>
-                                            <br></br>
-                                        </div>
 
-                                    <!-- Form Buttons -->
-                                        <div class="form-buttons">
-                                            <button type="submit" class="button">Login</button>
-                                            <a href="/signup" class="button">Sign Up</a>
-                                        </div>
-                                    </form>
+								<section class="profile-section">
+									<h1>Admin Panel</h1>
+									<a href="/table/users/index.html">View All Users</a>
+									<br>
+									<br>
+    								<a href="/logout">Logout</a>
+								</section>
 
-                                </section>
+								
 
 
 						</div>
