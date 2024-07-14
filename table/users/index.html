@@ -4,9 +4,9 @@
 		<title>Users Table</title>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
-		<link rel="stylesheet" href="../assets/css/main.css" />
-		<script src="../assets/js/script.js" defer></script>
-		<script src="../assets/js/fetchUsers.js" defer></script>
+		<link rel="stylesheet" href="../../assets/css/main.css" />
+		<script src="../../assets/js/script.js" defer></script>
+		<script src="../../assets/js/fetchUsers.js" defer></script>
 	</head>
 	<body class="is-preload">
 
@@ -28,10 +28,25 @@
 								<section class="profile-section">
 									<h1>Users Panel</h1>
 									<table>
+										<thead>
+											<tr>
+												<th>ID</th>
+												<th>Name</th>
+												<th>Email</th>
+												<th>Password</th>
+												<th>Role</th>
+												<th>Class IDs</th>
+												<th>Actions</th>
+											</tr>
+										</thead>
 										<tbody id="user-table-body">
 											<!-- User rows will be populated here -->
 										</tbody>
 									</table>
+									<!-- <script>
+										// Call fetchUsers() when the page loads
+										window.onload = fetchUsers;
+									</script> -->
 								</section>
 
 								

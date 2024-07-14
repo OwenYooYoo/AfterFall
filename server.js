@@ -119,6 +119,58 @@ async function main() {
             res.sendFile(path.join(__dirname, 'table/users/index.html'));
         });
 
+        // API
+        // API // Fetch all users
+        app.get('/api/users', async (req, res) => {
+            try {
+                const users = await usersCollection.find().toArray();
+                res.json(users);
+            } catch (err) {
+                console.error('Error fetching users:', err);
+                res.status(500).send('Internal Server Error');
+            }
+        });
+
+        // API // Update a user
+        app.put('/api/users/:id', async (req, res) => {
+            const userId = req.params.id;
+            const { name, email, password, role, classIds } = req.body;
+
+            try {
+                const result = await usersCollection.updateOne(
+                    { _id: new ObjectId(userId) },
+                    { $set: { name, email, password, role, classIds } }
+                );
+
+                if (result.modifiedCount > 0) {
+                    res.sendStatus(200);
+                } else {
+                    res.sendStatus(404);
+                }
+            } catch (err) {
+                console.error('Error updating user:', err);
+                res.status(500).send('Internal Server Error');
+            }
+        });
+
+        // API // Delete a user
+        app.delete('/api/users/:id', async (req, res) => {
+            const userId = req.params.id;
+
+            try {
+                const result = await usersCollection.deleteOne({ _id: new ObjectId(userId) });
+
+                if (result.deletedCount > 0) {
+                    res.sendStatus(200);
+                } else {
+                    res.sendStatus(404);
+                }
+            } catch (err) {
+                console.error('Error deleting user:', err);
+                res.status(500).send('Internal Server Error');
+            }
+        });
+
         // Start the server
         app.listen(PORT, () => {
             console.log(`Server running on http://localhost:${PORT}`);
