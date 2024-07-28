@@ -1,10 +1,10 @@
 <!DOCTYPE HTML>
 <html>
 	<head>
-		<title>Teacher Profile</title>
+		<title>Teachers Table</title>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
-		<link rel="stylesheet" href="./assets/css/main.css" />
+		<link rel="stylesheet" href="./../assets/css/main.css" />
 	</head>
 	<body class="is-preload">
 
@@ -24,11 +24,23 @@
                                 </header>
 
 								<section class="profile-section">
-									<h1>Teacher Panel</h1>
-									<a href="#">View All Classes</a>
-									<br>
-									<br>
-    								<a href="/logout">Logout</a>
+									<h1>Teachers List</h1>
+									<table>
+										<thead>
+											<tr>
+												<th>ID</th>
+												<th>Name</th>
+												<th>Email</th>
+												<th>Password</th>
+												<th>Role</th>
+												<th>Class IDs</th>
+												<th>Actions</th>
+											</tr>
+										</thead>
+										<tbody id="teacher-table-body">
+											<!-- User rows will be populated here -->
+										</tbody>
+									</table>
 								</section>
 
 								
@@ -118,12 +130,12 @@
 			</div>
 
 		<!-- Scripts -->
-			<script src="./assets/js/jquery.min.js"></script>
-			<script src="./assets/js/browser.min.js"></script>
-			<script src="./assets/js/breakpoints.min.js"></script>
-			<script src="./assets/js/util.js"></script>
-			<script src="./assets/js/main.js"></script>
-			<script src="./assets/js/script.js"></script>
-
+			<script src="./../assets/js/jquery.min.js"></script>
+			<script src="./../assets/js/browser.min.js"></script>
+			<script src="./../assets/js/breakpoints.min.js"></script>
+			<script src="./../assets/js/util.js"></script>
+			<script src="./../assets/js/main.js"></script>
+			<script src="./../assets/js/script.js"></script>
+			<script src="./../assets/js/fetchUsers.js" defer></script>
 	</body>
 </html>

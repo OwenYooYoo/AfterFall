@@ -11,7 +11,7 @@ async function fetchUsers() {
             row.innerHTML = `
                 <td>${user.id}</td>
                 <td><input type="text" value="${user.name}" id="name-${user._id}"></td>
-                <td><input type="text" value="${user.email}" id="email-${user._id}"></td>
+                <td><input type="email" value="${user.email}" id="email-${user._id}"></td>
                 <td><input type="text" value="${user.password}" id="password-${user._id}"></td>
                 <td>
                     <select id="role-${user._id}">
@@ -33,6 +33,82 @@ async function fetchUsers() {
     }
 }
 
+async function fetchTeachers() {
+    try {
+        const response = await fetch('/api/users?role=teacher');
+        const teachers = await response.json();
+
+        const tableBody = document.getElementById('teacher-table-body');
+        tableBody.innerHTML = ''; // Clear existing rows
+
+        teachers.forEach(teacher => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${teacher.id}</td>
+                <td>${teacher.name}</td>
+                <td>${teacher.email}</td>
+                <td>${teacher.password}</td>
+                <td>${teacher.role}</td>
+                <td>${teacher.classIds}</td>
+            `;
+            tableBody.appendChild(row);
+        });
+    } catch (err) {
+        console.error('Error fetching teachers:', err);
+    }
+}
+
+async function fetchStudents() {
+    try {
+        const response = await fetch('/api/users?role=student');
+        const teachers = await response.json();
+
+        const tableBody = document.getElementById('student-table-body');
+        tableBody.innerHTML = ''; // Clear existing rows
+
+        teachers.forEach(teacher => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${teacher.id}</td>
+                <td>${teacher.name}</td>
+                <td>${teacher.email}</td>
+                <td>${teacher.password}</td>
+                <td>${teacher.role}</td>
+                <td>${teacher.classIds}</td>
+            `;
+            tableBody.appendChild(row);
+        });
+    } catch (err) {
+        console.error('Error fetching teachers:', err);
+    }
+}
+
+async function fetchUsersByRole(role) {
+    try {
+        const response = await fetch(`/api/users/${role}`);
+        const users = await response.json();
+
+        const tableBody = document.getElementById(role-user-table-body);
+        tableBody.innerHTML = ''; // Clear existing rows
+
+        users.forEach(user => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${user.id}</td>
+                <td>${user.name}</td>
+                <td>${user.email}</td>
+                <td>${user.password}</td>
+                <td>${user.role}</td>
+                <td>${user.classIds}</td>
+            `;
+            tableBody.appendChild(row);
+        });
+    } catch (err) {
+        console.error(`Error fetching ${role}s:`, err);
+    }
+}
+
+// TODO: FIX, fields are all set to null
 async function editUser(userId) {
     const name = document.getElementById(`name-${userId}`).value;
     const email = document.getElementById(`email-${userId}`).value;
@@ -54,6 +130,7 @@ async function editUser(userId) {
             fetchUsers();
         } else {
             alert('Error updating user');
+            console.error('Error updating user:', await response.text());
         }
     } catch (err) {
         console.error('Error updating user:', err);
@@ -71,10 +148,21 @@ async function deleteUser(userId) {
             fetchUsers();
         } else {
             alert('Error deleting user');
+            console.error('Error deleting user:', await response.text());
         }
     } catch (err) {
         console.error('Error deleting user:', err);
     }
 }
 
-window.onload = fetchUsers;
+window.onload = () => {
+    if (document.getElementById('user-table-body')) {
+        fetchUsers();
+    }
+    if (document.getElementById('teacher-table-body')) {
+        fetchTeachers();
+    }
+    if (document.getElementById('student-table-body')) {
+        fetchStudents();
+    }
+};

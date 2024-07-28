@@ -2,7 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const session = require('express-session');
 const path = require('path');
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 
 const app = express();
 const PORT = 3000;
@@ -45,6 +45,7 @@ async function main() {
                     console.log('Login successful for:', userEmail, ', Role:', user.role);
                     res.redirect('/profile');
                 } else {
+                    alert('Login failed')
                     console.log('Login failed for:', userEmail);
                     res.redirect('/login');
                 }
@@ -119,26 +120,60 @@ async function main() {
             res.sendFile(path.join(__dirname, 'table/users/index.html'));
         });
 
+        app.get('/table/teachers', (req, res) => {
+            res.sendFile(path.join(__dirname, 'table/teachers/index.html'));
+        });
+
+        app.get('/table/students', (req, res) => {
+            res.sendFile(path.join(__dirname, 'table/students/index.html'));
+        });
+
+
         // API
-        // API // Fetch all users
+        //// Fetch all users
+        // app.get('/api/users', async (req, res) => {
+        //     try {
+        //         const users = await usersCollection.find().toArray();
+        //         res.json(users);
+        //     } catch (err) {
+        //         console.error('Error fetching users:', err);
+        //         res.status(500).send('Internal Server Error');
+        //     }
+        // });
+
         app.get('/api/users', async (req, res) => {
+            const role = req.query.role;
+            const filter = role ? { role } : {};
             try {
-                const users = await usersCollection.find().toArray();
+                const users = await usersCollection.find(filter).toArray();
                 res.json(users);
             } catch (err) {
-                console.error('Error fetching users:', err);
+                console.error(`Error fetching users:`, err);
                 res.status(500).send('Internal Server Error');
             }
         });
 
-        // API // Update a user
+        //// Fetch by role
+        app.get('/api/users/role/:role', async (req, res) => {
+            const { role } = req.params;
+
+            try {
+                const users = await usersCollection.find({ role }).toArray();
+                res.json(users);
+            } catch (err) {
+                console.error('Error fetching users by role:', err);
+                res.status(500).send('Internal Server Error');
+            }
+        });
+
+        //// Update a user
         app.put('/api/users/:id', async (req, res) => {
-            const userId = req.params.id;
+            const { id } = req.params;
             const { name, email, password, role, classIds } = req.body;
 
             try {
                 const result = await usersCollection.updateOne(
-                    { _id: new ObjectId(userId) },
+                    { _id: new ObjectId(id) },
                     { $set: { name, email, password, role, classIds } }
                 );
 
@@ -153,7 +188,7 @@ async function main() {
             }
         });
 
-        // API // Delete a user
+        //// Delete a user
         app.delete('/api/users/:id', async (req, res) => {
             const userId = req.params.id;
 
