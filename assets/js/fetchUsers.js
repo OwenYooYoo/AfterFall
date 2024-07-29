@@ -108,6 +108,72 @@ async function fetchUsersByRole(role) {
     }
 }
 
+async function fetchTeacherAndStudentsByClassId(classId) {
+    console.log('Fetching data for class ID:', classId);
+    try {
+        // Fetch teacher for the given class ID
+        const teacherResponse = await fetch(`/api/users?role=teacher&classId=${classId}`);
+        const teachers = await teacherResponse.json();
+
+        const teacherTableBody = document.getElementById('classid-teacher-table-body');
+        teacherTableBody.innerHTML = ''; // Clear existing rows
+
+        teachers.forEach(teacher => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${teacher.id}</td>
+                <td>${teacher.name}</td>
+                <td>${teacher.email}</td>
+                <td>${teacher.password}</td>
+                <td>${teacher.role}</td>
+                <td>${teacher.classIds}</td>
+            `;
+            teacherTableBody.appendChild(row);
+        });
+
+        // Fetch students for the given class ID
+        const studentResponse = await fetch(`/api/users?role=student&classId=${classId}`);
+        const students = await studentResponse.json();
+
+        const studentTableBody = document.getElementById('classid-student-table-body');
+        studentTableBody.innerHTML = ''; // Clear existing rows
+
+        students.forEach(student => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${student.id}</td>
+                <td>${student.name}</td>
+                <td>${student.email}</td>
+                <td>${student.password}</td>
+                <td>${student.role}</td>
+                <td>${student.classIds}</td>
+            `;
+            studentTableBody.appendChild(row);
+        });
+    } catch (err) {
+        console.error('Error fetching teacher and students:', err);
+    }
+}
+
+async function fetchClassIds() {
+    try {
+        const response = await fetch('/api/classIds'); 
+        const classIds = await response.json();
+
+        const classidSelect = document.getElementById('classid-select');
+        classIds.forEach(classId => {
+            if (classId && classId.trim() !== "") {
+                const option = document.createElement('option');
+                option.value = classId;
+                option.text = classId;
+                classidSelect.appendChild(option);
+            }
+        });
+    } catch (err) {
+        console.error('Error fetching class IDs:', err);
+    }
+}
+
 // TODO: FIX, fields are all set to null
 async function editUser(userId) {
     const name = document.getElementById(`name-${userId}`).value;
@@ -155,7 +221,22 @@ async function deleteUser(userId) {
     }
 }
 
+function handleClassIdSubmit(event) {
+    event.preventDefault();
+    const classidInput = document.getElementById('classid-input').value;
+    const classidSelect = document.getElementById('classid-select').value;
+    const classId = classidInput || classidSelect;
+    console.log('Selected class ID:', classId);
+    fetchTeacherAndStudentsByClassId(classId);
+}
+
 window.onload = () => {
+    fetchClassIds();
+    const classIdForm = document.getElementById('classid-form');
+    if (classIdForm) {
+        classIdForm.addEventListener('submit', handleClassIdSubmit);
+    }
+
     if (document.getElementById('user-table-body')) {
         fetchUsers();
     }

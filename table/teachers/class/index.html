@@ -1,7 +1,7 @@
 <!DOCTYPE HTML>
 <html>
 	<head>
-		<title>Teachers Table</title>
+		<title>Class Table</title>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
 		<link rel="stylesheet" href="./../../assets/css/main.css" />
@@ -24,7 +24,25 @@
                                 </header>
 
 								<section class="profile-section">
-									<h1>Teachers List</h1>
+									<h1>Class View</h1>
+									<form id="classid-form">
+										<label for="classid-select">Select Class ID:</label>
+										<select id="classid-select">
+											<option value="">-- Select Class ID --</option>
+											<!-- Options will be populated here -->
+										</select>
+										<br>
+										<label for="classid-input">Or Enter Class ID:</label>
+										<input type="text" id="classid-input" />
+										<button type="submit">View Class</button>
+									</form>
+
+									<!-- <div class="dropdown">
+										<input type="text" id="classid-input" placeholder="Select or type a class ID" oninput="filterClassIds()">
+										<div id="dropdown-content" class="dropdown-content"></div>
+									</div> -->
+
+									<h2>Teachers List</h2>
 									<table>
 										<thead>
 											<tr>
@@ -36,8 +54,25 @@
 												<th>Class IDs</th>
 											</tr>
 										</thead>
-										<tbody id="teacher-table-body">
+										<tbody id="classid-teacher-table-body">
 											<!-- User rows will be populated here -->
+										</tbody>
+									</table>
+
+									<h2>Students</h2>
+									<table>
+										<thead>
+											<tr>
+												<th>ID</th>
+												<th>Name</th>
+												<th>Email</th>
+												<th>Password</th>
+												<th>Role</th>
+												<th>Class IDs</th>
+											</tr>
+										</thead>
+										<tbody id="classid-student-table-body">
+											<!-- Student rows will be populated here -->
 										</tbody>
 									</table>
 								</section>

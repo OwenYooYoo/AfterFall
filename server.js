@@ -124,44 +124,48 @@ async function main() {
             res.sendFile(path.join(__dirname, 'table/teachers/index.html'));
         });
 
+        app.get('/table/teacher/class', (req, res) => {
+            res.sendFile(path.join(__dirname, 'table/teachers/class/index.html'));
+        });
+
         app.get('/table/students', (req, res) => {
             res.sendFile(path.join(__dirname, 'table/students/index.html'));
         });
 
+        
+
 
         // API
-        //// Fetch all users
-        // app.get('/api/users', async (req, res) => {
-        //     try {
-        //         const users = await usersCollection.find().toArray();
-        //         res.json(users);
-        //     } catch (err) {
-        //         console.error('Error fetching users:', err);
-        //         res.status(500).send('Internal Server Error');
-        //     }
-        // });
 
+        //// Fetch *OPTIONAL* by role or classID
         app.get('/api/users', async (req, res) => {
             const role = req.query.role;
-            const filter = role ? { role } : {};
+            const classId = req.query.classId;
+            let filter = {};
+        
+            if (role) {
+                filter.role = role;
+            }
+            if (classId) {
+                filter.classIds = classId;
+            }
+        
             try {
                 const users = await usersCollection.find(filter).toArray();
                 res.json(users);
             } catch (err) {
-                console.error(`Error fetching users:`, err);
+                console.error('Error fetching users:', err);
                 res.status(500).send('Internal Server Error');
             }
         });
-
-        //// Fetch by role
-        app.get('/api/users/role/:role', async (req, res) => {
-            const { role } = req.params;
-
+        
+        //// Fetch all Class IDs
+        app.get('/api/classIds', async (req, res) => {
             try {
-                const users = await usersCollection.find({ role }).toArray();
-                res.json(users);
+                const classIds = await usersCollection.distinct("classIds");
+                res.json(classIds);
             } catch (err) {
-                console.error('Error fetching users by role:', err);
+                console.error('Error fetching class IDs:', err);
                 res.status(500).send('Internal Server Error');
             }
         });
